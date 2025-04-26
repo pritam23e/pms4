@@ -1,0 +1,53 @@
+clc; clear; close all;
+
+l = 100;
+n = 100;
+
+%% Step 1: Generate Noisy Experimental Data
+x = linspace(1, l, n)';   % Define x values
+true_y = (log(x)).^2;     % Compute true values for (log(x))^2
+
+% Add synthetic noise (Gaussian noise with std deviation scaled by 0.4)
+noise = 0.4 * randn(size(x));
+y_exp = true_y + noise;   % Noisy observations
+
+% Display data table
+disp('Noisy Experimental Data:');
+disp([x y_exp]); % Tables are not natively supported in Octave, show as matrix
+
+%% Step 2: Least Squares Polynomial Fit
+degree = 5;
+
+% Construct design matrix
+A = zeros(length(x), degree + 1);
+for i = 0:degree
+    A(:, i + 1) = x.^i;
+end
+
+% Solve Least Squares Problem Ax = b
+params = A \ y_exp;
+
+%% Step 3: Generate Best-Fit Curve
+x_fit = linspace(1, l, n)';
+A_fit = zeros(length(x_fit), degree + 1);
+for i = 0:degree
+    A_fit(:, i + 1) = x_fit.^i;
+end
+y_fit = A_fit * params;
+
+%% Step 4: Plot Data, True Curve, and Fit Curve
+figure;
+plot(x, y_exp, 'bo', 'DisplayName', 'Noisy Data'); hold on;
+plot(x_fit, (log(x_fit)).^2, 'g--', 'LineWidth', 2, 'DisplayName', 'True Function (log(x))^2');
+plot(x_fit, y_fit, 'r-', 'LineWidth', 2, 'DisplayName', 'Least Squares Fit');
+xlabel('x');
+ylabel('y = (log(x))^2 with Noise');
+title('Least Squares Fit for Noisy (log(x))^2 Data');
+legend('show'); grid on;
+
+%% Step 5: Display Best-Fit Equation
+printf('Best Fit Equation: y = ');
+for i = degree:-1:1
+    printf('%.4f x^%d + ', params(i+1), i);
+end
+printf('%.4f\n', params(1));
