@@ -12,6 +12,10 @@ frequencies = randi([1, max_frequency], 1, n);
 % Calculate Mean
 mean_freq = sum((1:n) .* frequencies) / sum(frequencies);
 
+% Calculate Standard Deviation (weighted)
+mean_diff_sq = ((1:n) - mean_freq).^2;
+std_dev = sqrt(sum(mean_diff_sq .* frequencies) / sum(frequencies));
+
 % Calculate Median using Cumulative Frequency
 cumulative_freq = cumsum(frequencies);
 total_freq = sum(frequencies);
@@ -26,6 +30,7 @@ mode_freq = mode_index;
 fprintf('Mean of Frequencies: %.2f\n', mean_freq);
 fprintf('Median of Frequencies: %d\n', median_freq);
 fprintf('Mode of Frequencies: %d\n', mode_freq);
+fprintf('Standard Deviation: %.2f\n', std_dev);
 
 % Plotting the Frequencies
 figure;
@@ -37,7 +42,7 @@ ylabel('Frequencies');
 xticks(1:n);
 grid on;
 
-% Add vertical lines for Mean, Median, and Mode
+% Add vertical lines for Mean, Median, Mode, and ±1 Std Dev
 hold on;
 y_limits = ylim();
 
@@ -53,5 +58,11 @@ text(median_freq, y_limits(2)*0.90, sprintf('Median: %d', median_freq), 'Color',
 plot([mode_freq mode_freq], y_limits, 'b--', 'LineWidth', 2);
 text(mode_freq, y_limits(2)*0.85, sprintf('Mode: %d', mode_freq), 'Color', 'b', 'FontWeight', 'bold', 'HorizontalAlignment', 'left');
 
+% ±1 Standard Deviation lines
+plot([mean_freq + std_dev, mean_freq + std_dev], y_limits, 'Color', [1 0.5 0], 'LineStyle', '--', 'LineWidth', 2);
+plot([mean_freq - std_dev, mean_freq - std_dev], y_limits, 'Color', [1 0.5 0], 'LineStyle', '--', 'LineWidth', 2);
+text(mean_freq + std_dev, y_limits(2)*0.80, sprintf('+1σ: %.2f', mean_freq + std_dev), 'Color', [1 0.5 0], 'FontWeight', 'bold', 'HorizontalAlignment', 'left');
+text(mean_freq - std_dev, y_limits(2)*0.75, sprintf('-1σ: %.2f', mean_freq - std_dev), 'Color', [1 0.5 0], 'FontWeight', 'bold', 'HorizontalAlignment', 'left');
+
 hold off;
-legend('Frequencies', 'Mean', 'Median', 'Mode', 'Location', 'northeast');
+legend('Frequencies', 'Mean', 'Median', 'Mode', '+1 Std Dev', '-1 Std Dev', 'Location', 'northeast');
